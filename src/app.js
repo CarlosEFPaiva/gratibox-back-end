@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { signUp } from './controllers/login.js';
+import { signIn, signUp } from './controllers/login.js';
 import { validateBody } from './middlewares/validateRequest.js';
 import schemas from './schemas/login.js';
 
@@ -13,5 +13,6 @@ app.get('/status', (req, res) => {
 });
 
 app.post('/signup', validateBody(schemas.signUp), signUp);
+app.post('/signin', validateBody(schemas.signIn), signIn);
 
 export default app;

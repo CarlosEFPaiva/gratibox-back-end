@@ -10,8 +10,14 @@ const signUp = joi.object({
     password: joi.string().pattern(passwordRegex).required(),
 });
 
+const signIn = joi.object({
+    email: joi.string().pattern(emailRegex).required(),
+    password: joi.string().pattern(passwordRegex).required(),
+});
+
 const schemas = {
     signUp,
+    signIn,
 };
 
 export default schemas;
