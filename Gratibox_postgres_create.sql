@@ -1,19 +1,18 @@
-CREATE TABLE "public.signin" (
+CREATE TABLE "login" (
 	"id" serial NOT NULL,
-	"user_id" integer NOT NULL UNIQUE,
 	"email" varchar(255) NOT NULL UNIQUE,
-	"password" uuid NOT NULL UNIQUE,
-	CONSTRAINT "signin_pk" PRIMARY KEY ("id")
+	"password" varchar(255) NOT NULL UNIQUE,
+	"name" varchar(255) NOT NULL,
+	CONSTRAINT "login_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
 );
 
 
 
-CREATE TABLE "public.users" (
+CREATE TABLE "subscribers" (
 	"id" serial NOT NULL,
-	"login_name" varchar(255) NOT NULL,
-	"plan_id" integer NOT NULL,
+	"login_id" integer NOT NULL,
 	"deliver_date_id" integer NOT NULL,
 	"full_name" varchar(255) NOT NULL,
 	"subscription_date" DATE,
@@ -21,14 +20,14 @@ CREATE TABLE "public.users" (
 	"zip_code" integer NOT NULL,
 	"city_id" integer NOT NULL,
 	"state_id" integer NOT NULL,
-	CONSTRAINT "users_pk" PRIMARY KEY ("id")
+	CONSTRAINT "subscribers_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
 );
 
 
 
-CREATE TABLE "public.plans" (
+CREATE TABLE "plans" (
 	"id" serial NOT NULL,
 	"name" varchar(255) NOT NULL UNIQUE,
 	CONSTRAINT "plans_pk" PRIMARY KEY ("id")
@@ -38,8 +37,9 @@ CREATE TABLE "public.plans" (
 
 
 
-CREATE TABLE "public.deliver_dates" (
+CREATE TABLE "deliver_dates" (
 	"id" serial NOT NULL,
+	"plan_id" integer NOT NULL,
 	"name" varchar(255) NOT NULL UNIQUE,
 	CONSTRAINT "deliver_dates_pk" PRIMARY KEY ("id")
 ) WITH (
@@ -48,7 +48,7 @@ CREATE TABLE "public.deliver_dates" (
 
 
 
-CREATE TABLE "public.products" (
+CREATE TABLE "products" (
 	"id" serial NOT NULL,
 	"name" varchar(255) NOT NULL UNIQUE,
 	CONSTRAINT "products_pk" PRIMARY KEY ("id")
@@ -58,18 +58,18 @@ CREATE TABLE "public.products" (
 
 
 
-CREATE TABLE "public.users_and_products" (
+CREATE TABLE "subscribers_and_products" (
 	"id" serial NOT NULL,
-	"user_id" serial NOT NULL,
-	"product_id" serial NOT NULL,
-	CONSTRAINT "users_and_products_pk" PRIMARY KEY ("id")
+	"subscriber_id" integer NOT NULL,
+	"product_id" integer NOT NULL,
+	CONSTRAINT "subscribers_and_products_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
 );
 
 
 
-CREATE TABLE "public.cities" (
+CREATE TABLE "cities" (
 	"id" serial NOT NULL,
 	"name" varchar(255) NOT NULL UNIQUE,
 	CONSTRAINT "cities_pk" PRIMARY KEY ("id")
@@ -79,7 +79,7 @@ CREATE TABLE "public.cities" (
 
 
 
-CREATE TABLE "public.states" (
+CREATE TABLE "states" (
 	"id" serial NOT NULL,
 	"name" varchar(255) NOT NULL UNIQUE,
 	CONSTRAINT "states_pk" PRIMARY KEY ("id")
@@ -89,9 +89,9 @@ CREATE TABLE "public.states" (
 
 
 
-CREATE TABLE "public.sessions" (
+CREATE TABLE "sessions" (
 	"id" serial NOT NULL,
-	"user_id" integer NOT NULL,
+	"login_id" integer NOT NULL,
 	"token" uuid NOT NULL UNIQUE,
 	CONSTRAINT "sessions_pk" PRIMARY KEY ("id")
 ) WITH (
@@ -100,23 +100,22 @@ CREATE TABLE "public.sessions" (
 
 
 
-ALTER TABLE "signin" ADD CONSTRAINT "signin_fk0" FOREIGN KEY ("user_id") REFERENCES "users"("id");
 
-ALTER TABLE "users" ADD CONSTRAINT "users_fk0" FOREIGN KEY ("plan_id") REFERENCES "plans"("id");
-ALTER TABLE "users" ADD CONSTRAINT "users_fk1" FOREIGN KEY ("deliver_date_id") REFERENCES "deliver_dates"("id");
-ALTER TABLE "users" ADD CONSTRAINT "users_fk2" FOREIGN KEY ("city_id") REFERENCES "cities"("id");
-ALTER TABLE "users" ADD CONSTRAINT "users_fk3" FOREIGN KEY ("state_id") REFERENCES "states"("id");
-
+ALTER TABLE "subscribers" ADD CONSTRAINT "subscribers_fk0" FOREIGN KEY ("login_id") REFERENCES "login"("id");
+ALTER TABLE "subscribers" ADD CONSTRAINT "subscribers_fk1" FOREIGN KEY ("deliver_date_id") REFERENCES "deliver_dates"("id");
+ALTER TABLE "subscribers" ADD CONSTRAINT "subscribers_fk2" FOREIGN KEY ("city_id") REFERENCES "cities"("id");
+ALTER TABLE "subscribers" ADD CONSTRAINT "subscribers_fk3" FOREIGN KEY ("state_id") REFERENCES "states"("id");
 
 
-
-ALTER TABLE "users_and_products" ADD CONSTRAINT "users_and_products_fk0" FOREIGN KEY ("user_id") REFERENCES "users"("id");
-ALTER TABLE "users_and_products" ADD CONSTRAINT "users_and_products_fk1" FOREIGN KEY ("product_id") REFERENCES "products"("id");
+ALTER TABLE "deliver_dates" ADD CONSTRAINT "deliver_dates_fk0" FOREIGN KEY ("plan_id") REFERENCES "plans"("id");
 
 
+ALTER TABLE "subscribers_and_products" ADD CONSTRAINT "subscribers_and_products_fk0" FOREIGN KEY ("subscriber_id") REFERENCES "subscribers"("id");
+ALTER TABLE "subscribers_and_products" ADD CONSTRAINT "subscribers_and_products_fk1" FOREIGN KEY ("product_id") REFERENCES "products"("id");
 
-ALTER TABLE "sessions" ADD CONSTRAINT "sessions_fk0" FOREIGN KEY ("user_id") REFERENCES "users"("id");
 
+
+ALTER TABLE "sessions" ADD CONSTRAINT "sessions_fk0" FOREIGN KEY ("login_id") REFERENCES "login"("id");
 
 
 
