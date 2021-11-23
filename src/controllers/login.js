@@ -23,7 +23,7 @@ async function signIn(req, res) {
     } = req.body;
 
     try {
-        const user = await db.login.get(email);
+        const user = await db.login.get({ email });
         if (!user) {
             return res.sendStatus(401);
         }

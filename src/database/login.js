@@ -21,17 +21,34 @@ async function add(userData) {
     );
 }
 
-async function get(email) {
-    const user = await connection.query(`
+async function get(userData) {
+    const {
+        email,
+        token,
+    } = userData;
+
+    let queryText = `
         SELECT
-            id,
-            email,
-            password,
-            name
+            login.id,
+            login.email,
+            login.password,
+            login.name
         FROM
             login
-        WHERE email = $1
-     ;`, [email]);
+        JOIN sessions
+            ON sessions.login_id = login.id
+        WHERE 1 = 1`;
+    const params = [];
+    if (email) {
+        params.push(email);
+        queryText += ` AND login.email iLIKE $${params.length}`;
+    }
+    if (token) {
+        params.push(token);
+        queryText += ` AND sessions.token = $${params.length}`;
+    }
+    const user = await connection.query(`${queryText};`, params);
+
     return user.rows[0];
 }
 

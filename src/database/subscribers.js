@@ -47,8 +47,63 @@ async function get(token) {
     };
 }
 
+async function add(newSubscriptionData) {
+    const {
+        loginId,
+        deliverDate,
+        products,
+        name,
+        adress,
+        zipCode,
+        cityId,
+        stateId,
+    } = newSubscriptionData;
+
+    const subscription = await connection.query(`
+        INSERT INTO subscribers
+            (login_id, deliver_date_id, full_name, subscription_date, adress, zip_code, city_id, state_id)
+        VALUES
+        (
+            $1,
+            (SELECT id FROM deliver_dates WHERE name = $2),
+            $3,
+            $4,
+            $5,
+            $6,
+            $7,
+            $8
+        ) RETURNING *;
+    `, [
+        loginId,
+        deliverDate,
+        name,
+        new Date(),
+        adress,
+        zipCode,
+        cityId,
+        stateId,
+    ]);
+    let queryText = `
+    INSERT INTO
+        subscribers_and_products
+    (subscriber_id, product_id)
+    VALUES`;
+    const params = [subscription.rows[0].id];
+    products.forEach((product, index) => {
+        params.push(product);
+        queryText += (` ($1, (SELECT id from products WHERE name = $${params.length}))`);
+        if (index !== products.length - 1) {
+            queryText += ' ,';
+        }
+    });
+
+    await connection.query(`${queryText};`, params);
+    return '';
+}
+
 const subscribersFactory = {
     get,
+    add,
 };
 
 export default subscribersFactory;
